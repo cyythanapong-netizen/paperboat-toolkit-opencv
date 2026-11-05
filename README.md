@@ -34,8 +34,8 @@ tk::opencv::register_opencv(r);
 
 and import `"opencv"` in your `descriptor.toml`.
 
-## Status
+## CI
 
-This repository is created by splitting the opencv toolkit out of the main Paperboat
-repo (see paperboat issue #116). The engine-side package manager that installs
-toolkits from GitHub automatically is tracked there.
+The build job checks out the (private) paperboat engine. Add a repository secret
+`PAPERBOAT_TOKEN` (a PAT with repo scope) for it to run; otherwise only the
+`validate` job runs.
