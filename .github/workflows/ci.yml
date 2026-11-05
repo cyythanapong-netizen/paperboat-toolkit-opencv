@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: paperboat-toolkit-opencv
+      - uses: actions/checkout@v4
+        with:
+          repository: cyythanapong-netizen/paperboat
+          path: paperboat
+      - name: Overlay the toolkit
+        run: cp -r paperboat-toolkit-opencv/engine/toolkit/opencv paperboat/engine/toolkit/opencv
+      - name: Install OpenCV
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev ninja-build
+      - name: Configure
+        run: cmake -S paperboat/engine -B paperboat/engine/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build paperboat/engine/build
