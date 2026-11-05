@@ -9,27 +9,34 @@ jobs:
   build:
     name: Build opencv toolkit against paperboat
     runs-on: ubuntu-24.04
-    # Cross-repo checkout of the (private) paperboat repo needs a PAT with repo scope.
-    # Add it as the PAPERBOAT_TOKEN secret in this repository. When it is absent the
-    # job is skipped instead of failing.
-    if: ${{ secrets.PAPERBOAT_TOKEN != '' }}
     steps:
+      - name: Check for token
+        id: token
+        run: |
+          if [ -z "${{ secrets.PAPERBOAT_TOKEN }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "PAPERBOAT_TOKEN not set; skipping build (see README)."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v4
-        with:
-          path: paperboat-toolkit-opencv
-      - uses: actions/checkout@v4
+        if: steps.token.outputs.skip != 'true'
         with:
           repository: cyythanapong-netizen/paperboat
           ref: dev
           token: ${{ secrets.PAPERBOAT_TOKEN }}
           path: paperboat
       - name: Overlay the toolkit
-        run: cp -r paperboat-toolkit-opencv/engine/toolkit/opencv paperboat/engine/toolkit/opencv
+        if: steps.token.outputs.skip != 'true'
+        run: cp -r engine/toolkit/opencv paperboat/engine/toolkit/opencv
       - name: Install OpenCV
+        if: steps.token.outputs.skip != 'true'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev ninja-build
       - name: Configure
+        if: steps.token.outputs.skip != 'true'
         run: cmake -S paperboat/engine -B paperboat/engine/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
       - name: Build
+        if: steps.token.outputs.skip != 'true'
         run: cmake --build paperboat/engine/build
 
   validate:
