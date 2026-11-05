@@ -7,7 +7,12 @@ on:
 
 jobs:
   build:
+    name: Build opencv toolkit against paperboat
     runs-on: ubuntu-24.04
+    # Cross-repo checkout of the (private) paperboat repo needs a PAT with repo scope.
+    # Add it as the PAPERBOAT_TOKEN secret in this repository. When it is absent the
+    # job is skipped instead of failing.
+    if: ${{ secrets.PAPERBOAT_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: cyythanapong-netizen/paperboat
+          ref: dev
+          token: ${{ secrets.PAPERBOAT_TOKEN }}
           path: paperboat
       - name: Overlay the toolkit
         run: cp -r paperboat-toolkit-opencv/engine/toolkit/opencv paperboat/engine/toolkit/opencv
@@ -24,3 +31,13 @@ jobs:
         run: cmake -S paperboat/engine -B paperboat/engine/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
       - name: Build
         run: cmake --build paperboat/engine/build
+
+  validate:
+    name: Validate toolkit files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check toolkit.toml parses
+        run: python3 -c "import tomllib; tomllib.load(open('engine/toolkit/opencv/toolkit.toml','rb')); print('toolkit.toml OK')"
+      - name: Check OpenCV headers present
+        run: test -f engine/toolkit/opencv/include/paperboat/toolkit/opencv.hpp && echo OK
