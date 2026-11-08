@@ -3,7 +3,8 @@
 The optional image-processing toolkit for [Paperboat](https://github.com/cyythanapong-netizen/paperboat).
 
 It provides the `opencv` package: image filters, an `Image` station object and an
-`image` Dashboard instrument. It depends on OpenCV and is kept out of the core engine
+`image` Dashboard instrument (its React component is in
+`engine/toolkit/opencv/web/index.tsx`, which the Paperboat web app bundles from the installed toolkit). It depends on OpenCV and is kept out of the core engine
 so the main build stays light.
 
 ## Using it
