@@ -18,6 +18,7 @@
 namespace paperboat::toolkit::opencv {
 
 void add_image_object(Registry& registry);  // image.cpp
+void add_centroid(Registry& registry);      // centroid.cpp
 
 namespace {
 
@@ -72,6 +73,7 @@ struct View final : Block {
 
 void register_opencv(Registry& registry) {
   add_image_object(registry);
+  add_centroid(registry);
 
   filter(registry, "gray", "Gray", {}, [](const cv::Mat& im, const Values&) { return as_gray(im); },
          "Turns an image to grey.");
