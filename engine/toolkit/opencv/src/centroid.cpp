@@ -11,7 +11,7 @@
 
 #include <opencv2/imgproc.hpp>
 
-#include "paperboat/toolkit/opencv.hpp"
+#include "common.hpp"
 
 namespace paperboat::toolkit::opencv {
 namespace {
@@ -21,7 +21,7 @@ class Centroid final : public Block {
   Values step(const Context&, const Values& in) override {
     const cv::Mat* image = image_in(in, "image");
     if (!image) return {};
-    const cv::Mat gray = as_gray(*image);
+    const cv::Mat gray = as_8u(as_gray(*image));
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(gray, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     if (contours.empty()) return {{"image", image_out(gray.clone())}, {"u", 0.0}, {"v", 0.0},
@@ -62,7 +62,8 @@ void add_centroid(Registry& registry) {
            .inputs = {image_port("image")},
            .outputs = {image_port("image"), {"u"}, {"v"}, {"area"}, {"radius"}, {"found"}},
            .params = {},
-           .description = "The largest white blob's centroid, area and radius, plus a marked image."};
+           .description = "The largest white blob's centroid, area and radius, plus a marked image.",
+           .cacheable = true};
   t.make = [](const Values&, const Config&) { return std::make_unique<Centroid>(); };
   registry.add(std::move(t));
 }

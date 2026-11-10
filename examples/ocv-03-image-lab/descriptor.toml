@@ -1,0 +1,71 @@
+# ocv-03-image-lab: the geometry, tone and gradient stages on a synthetic gradient card.
+#
+#   Test card → Stats → mean/min/max readouts
+#            └→ Gray → Resize → Crop → Equalize → Sobel → Image view
+domain = "image-lab"
+
+import = ["dashboard", "opencv"]
+
+# No station bodies: open on the Flow graph.
+[station]
+view = "graph"
+objects = []
+
+[graph]
+nodes = [
+  { id = "card-1", type = "testcard", pos = [0, 160] },
+  { id = "stats-1", type = "stats", pos = [220, 40] },
+  { id = "gray-1", type = "gray", pos = [220, 240] },
+  { id = "resize-1", type = "resize", params = { width = 160, height = 0, scale = 1, interpolation = "linear" }, pos = [440, 240] },
+  { id = "crop-1", type = "crop", params = { x = 20, y = 10, width = 80, height = 60 }, pos = [660, 240] },
+  { id = "equalize-1", type = "equalize", pos = [880, 240] },
+  { id = "sobel-1", type = "sobel", params = { dx = 1, dy = 0, size = 3 }, pos = [1100, 240] },
+
+  { id = "view-raw", type = "view", pos = [220, 420] },
+  { id = "view-lab", type = "view", pos = [1100, 420] },
+  { id = "display-mean", type = "display", pos = [440, 40] },
+  { id = "display-min", type = "display", pos = [560, 40] },
+  { id = "display-max", type = "display", pos = [680, 40] },
+  { id = "display-truth-mean", type = "display", pos = [440, 120] },
+  { id = "display-truth-min", type = "display", pos = [560, 120] },
+  { id = "display-truth-max", type = "display", pos = [680, 120] },
+]
+edges = [
+  { from = ["card-1", "image"], to = ["stats-1", "image"] },
+  { from = ["stats-1", "mean"], to = ["display-mean", "in"] },
+  { from = ["stats-1", "min"], to = ["display-min", "in"] },
+  { from = ["stats-1", "max"], to = ["display-max", "in"] },
+  { from = ["card-1", "mean"], to = ["display-truth-mean", "in"] },
+  { from = ["card-1", "min"], to = ["display-truth-min", "in"] },
+  { from = ["card-1", "max"], to = ["display-truth-max", "in"] },
+
+  { from = ["card-1", "image"], to = ["gray-1", "image"] },
+  { from = ["gray-1", "image"], to = ["resize-1", "image"] },
+  { from = ["resize-1", "image"], to = ["crop-1", "image"] },
+  { from = ["crop-1", "image"], to = ["equalize-1", "image"] },
+  { from = ["equalize-1", "image"], to = ["sobel-1", "image"] },
+  { from = ["card-1", "image"], to = ["view-raw", "image"] },
+  { from = ["sobel-1", "image"], to = ["view-lab", "image"] },
+]
+groups = [
+  { id = "scene", kind = "visual", label = "Gradient card", nodes = ["card-1", "view-raw"] },
+  { id = "stats", kind = "visual", label = "Statistics", nodes = ["stats-1", "display-mean", "display-min", "display-max"] },
+  { id = "lab", kind = "visual", label = "Geometry and edges", nodes = ["gray-1", "resize-1", "crop-1", "equalize-1", "sobel-1", "view-lab"] },
+]
+
+[dashboard]
+columns = 8
+instruments = [
+  { block = "view-raw", size = "large", at = [0, 0] },
+  { block = "view-lab", size = "large", at = [2, 0] },
+  { block = "display-mean", size = "compact", at = [4, 0] },
+  { block = "display-min", size = "compact", at = [5, 0] },
+  { block = "display-max", size = "compact", at = [6, 0] },
+  { block = "display-truth-mean", size = "compact", at = [4, 1] },
+  { block = "display-truth-min", size = "compact", at = [5, 1] },
+  { block = "display-truth-max", size = "compact", at = [6, 1] },
+]
+decorations = [
+  { kind = "label", text = "Image lab · resize → crop → equalize → sobel", at = [0, 2], span = [6, 1] },
+  { kind = "console", at = [6, 2], span = [2, 2] },
+]

@@ -1,0 +1,14 @@
+[backend]
+format = 0
+name = "ocv-01-parts-counter"
+version = "0.1.0"
+engine = ">=0.1"
+language = "cpp"
+run = "build/paperboat-ocv-parts"
+port = 8781
+descriptor = "descriptor.toml"
+solver = "discrete"
+toolkits = ["opencv"]
+
+[test]
+golden = "expected.json"

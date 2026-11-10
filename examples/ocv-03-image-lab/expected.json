@@ -1,0 +1,16 @@
+{
+  "$comment": "What `--run` (the starter, headless) must produce; checked by protocol/golden.py.",
+  "status": "done",
+  "run": "build/paperboat-ocv-lab",
+  "signals": {
+    "display-mean": [128.16979166666667, 1e-6],
+    "display-min": [0.0, 1e-9],
+    "display-max": [255.0, 1e-9],
+    "display-truth-mean": [128.16979166666667, 1e-6],
+    "display-truth-min": [0.0, 1e-9],
+    "display-truth-max": [255.0, 1e-9]
+  },
+  "logs": [
+    "image lab: gradient card"
+  ]
+}

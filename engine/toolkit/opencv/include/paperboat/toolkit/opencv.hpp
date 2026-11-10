@@ -4,8 +4,12 @@
 //
 // - Station: an Image station object (a picture file, set on the Station page). Its linked
 //   block puts the picture on the Flow page: `image` out.
-// - Flow: blocks with `image` ports (gray, blur, threshold, morphology, edges…) evaluated
-//   in dependency order, usually once.
+// - Flow: blocks with `image` ports, evaluated in dependency order: geometry (resize, crop,
+//   flip, rotate), colour and tone (gray, convert, normalize, equalize, clahe), filters
+//   (blur, median, threshold, adaptive_threshold, hsv_range, canny, sobel, laplacian,
+//   morphology, invert, distance), image algebra (bitwise, blend, absdiff, background),
+//   analysis (centroid, contours, stats, hough_lines, hough_circles, template_match),
+//   annotation (draw) and output (save).
 // - Dashboard: Image view shows any image (a stage, a result) as an instrument.
 // - Your own blocks take an image in with image_in() and send one out with image_out(),
 //   like the parts example's counter.

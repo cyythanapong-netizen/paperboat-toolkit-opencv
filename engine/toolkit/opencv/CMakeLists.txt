@@ -8,7 +8,18 @@ if(NOT PAPERBOAT_WITH_OPENCV)
 endif()
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
 
-add_library(paperboat_toolkit_opencv src/image.cpp src/blocks.cpp src/centroid.cpp)
+add_library(paperboat_toolkit_opencv
+  src/image.cpp
+  src/blocks.cpp
+  src/centroid.cpp
+  src/geometry.cpp
+  src/color.cpp
+  src/gradient.cpp
+  src/combine.cpp
+  src/analyze.cpp
+  src/draw.cpp
+  src/io.cpp
+  src/background.cpp)
 add_library(paperboat::toolkit_opencv ALIAS paperboat_toolkit_opencv)
 target_include_directories(paperboat_toolkit_opencv PUBLIC include)
 target_link_libraries(paperboat_toolkit_opencv

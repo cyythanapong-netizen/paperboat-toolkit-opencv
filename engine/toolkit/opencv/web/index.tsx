@@ -2,7 +2,13 @@
 // The Paperboat web app bundles every engine/toolkit/<name>/web/index.tsx and calls register(host).
 
 type ImageProps = { name: string; latest: unknown; idle: boolean };
-type Host = { registerInstrument: (kind: string, renderer: (props: ImageProps) => unknown) => void };
+type Host = {
+  registerInstrument: (
+    kind: string,
+    renderer: (props: ImageProps) => unknown,
+    options?: { size?: string; order?: number },
+  ) => void;
+};
 
 /** The latest frame, a data URL, or a greyed placeholder before the first one. */
 function ImageInstrument({ name, latest, idle }: ImageProps) {
@@ -20,5 +26,5 @@ function ImageInstrument({ name, latest, idle }: ImageProps) {
 }
 
 export function register(host: Host) {
-  host.registerInstrument("image", ImageInstrument);
+  host.registerInstrument("image", ImageInstrument, { size: "large", order: 1 });
 }

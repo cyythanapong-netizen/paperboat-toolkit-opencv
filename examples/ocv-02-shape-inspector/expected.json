@@ -1,0 +1,14 @@
+{
+  "$comment": "What `--run` (the starter, headless) must produce; checked by protocol/golden.py.",
+  "status": "done",
+  "run": "build/paperboat-ocv-shapes",
+  "signals": {
+    "display-circles": [1.0, 1e-9],
+    "display-shapes": [2.0, 1e-9],
+    "display-truth-circles": [1.0, 1e-9],
+    "display-truth-shapes": [2.0, 1e-9]
+  },
+  "logs": [
+    "test card: 1 circle, 2 shapes"
+  ]
+}

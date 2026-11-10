@@ -1,0 +1,14 @@
+[backend]
+format = 0
+name = "ocv-02-shape-inspector"
+version = "0.1.0"
+engine = ">=0.1"
+language = "cpp"
+run = "build/paperboat-ocv-shapes"
+port = 8782
+descriptor = "descriptor.toml"
+solver = "discrete"
+toolkits = ["opencv"]
+
+[test]
+golden = "expected.json"

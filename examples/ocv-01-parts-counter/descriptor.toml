@@ -1,0 +1,65 @@
+# ocv-01-parts-counter: a synthetic overhead conveyor, thresholded, opened, counted and
+# marked with the optional `opencv` package.
+#
+#   Conveyor → Gray → Threshold → Open → Contours → Draw → Image view
+#                                          └→ Count readout
+domain = "parts-counter"
+
+import = ["dashboard", "opencv"]
+
+# No station bodies: open on the Flow graph.
+[station]
+view = "graph"
+objects = []
+
+[graph]
+nodes = [
+  { id = "conveyor-1", type = "conveyor", pos = [0, 120] },
+  { id = "gray-1", type = "gray", pos = [220, 120] },
+  { id = "threshold-1", type = "threshold", params = { level = 128, otsu = 0, invert = 0 }, pos = [440, 120] },
+  { id = "open-1", type = "open", params = { size = 3, iterations = 1 }, pos = [660, 120] },
+  { id = "contours-1", type = "contours", params = { min_area = 50, max_area = 0, draw = "all", thickness = 1 }, pos = [880, 120] },
+  { id = "draw-1", type = "draw", params = { shape = "box", color = "green", thickness = 2 }, pos = [1100, 120] },
+
+  { id = "view-raw", type = "view", pos = [220, 340] },
+  { id = "view-mask", type = "view", pos = [660, 340] },
+  { id = "view-result", type = "view", pos = [1100, 340] },
+  { id = "display-count", type = "display", pos = [1100, 470] },
+  { id = "display-truth", type = "display", pos = [1100, 550] },
+]
+edges = [
+  { from = ["conveyor-1", "image"], to = ["gray-1", "image"] },
+  { from = ["gray-1", "image"], to = ["threshold-1", "image"] },
+  { from = ["threshold-1", "image"], to = ["open-1", "image"] },
+  { from = ["open-1", "image"], to = ["contours-1", "image"] },
+  { from = ["contours-1", "image"], to = ["draw-1", "image"] },
+  { from = ["contours-1", "u"], to = ["draw-1", "u"] },
+  { from = ["contours-1", "v"], to = ["draw-1", "v"] },
+  { from = ["contours-1", "width"], to = ["draw-1", "width"] },
+  { from = ["contours-1", "height"], to = ["draw-1", "height"] },
+
+  { from = ["conveyor-1", "image"], to = ["view-raw", "image"] },
+  { from = ["open-1", "image"], to = ["view-mask", "image"] },
+  { from = ["draw-1", "image"], to = ["view-result", "image"] },
+  { from = ["contours-1", "count"], to = ["display-count", "in"] },
+  { from = ["conveyor-1", "parts"], to = ["display-truth", "in"] },
+]
+groups = [
+  { id = "scene", kind = "visual", label = "Synthetic conveyor", nodes = ["conveyor-1", "view-raw"] },
+  { id = "vision", kind = "visual", label = "OpenCV pipeline", nodes = ["gray-1", "threshold-1", "open-1", "view-mask"] },
+  { id = "result", kind = "visual", label = "Count and mark", nodes = ["contours-1", "draw-1", "view-result", "display-count", "display-truth"] },
+]
+
+[dashboard]
+columns = 8
+instruments = [
+  { block = "view-result", size = "large", at = [0, 0] },
+  { block = "view-raw", size = "normal", at = [2, 0] },
+  { block = "view-mask", size = "normal", at = [4, 0] },
+  { block = "display-count", size = "compact", at = [6, 0] },
+  { block = "display-truth", size = "compact", at = [7, 0] },
+]
+decorations = [
+  { kind = "label", text = "Parts counter · threshold → open → contours", at = [0, 2], span = [6, 1] },
+  { kind = "console", at = [6, 2], span = [2, 2] },
+]

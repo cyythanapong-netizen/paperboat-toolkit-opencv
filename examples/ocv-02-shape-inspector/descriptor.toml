@@ -1,0 +1,78 @@
+# ocv-02-shape-inspector: one synthetic test card through two OpenCV analyses.
+#
+#   Test card → Gray → Median → Hough circles → Draw → Image view
+#                    └→ Threshold → Contours → Draw → Image view
+domain = "shape-inspector"
+
+import = ["dashboard", "opencv"]
+
+# No station bodies: open on the Flow graph.
+[station]
+view = "graph"
+objects = []
+
+[graph]
+nodes = [
+  { id = "testcard-1", type = "testcard", pos = [0, 140] },
+  { id = "gray-1", type = "gray", pos = [220, 140] },
+  { id = "median-1", type = "median", params = { size = 5 }, pos = [440, 60] },
+  { id = "hough-circles-1", type = "hough_circles", params = { dp = 1.2, min_dist = 80, param1 = 100, param2 = 20, min_radius = 20, max_radius = 40, thickness = 1 }, pos = [660, 60] },
+  { id = "draw-circle-1", type = "draw", params = { shape = "circle", color = "green", thickness = 2 }, pos = [880, 60] },
+  { id = "threshold-1", type = "threshold", params = { level = 128, otsu = 0, invert = 0 }, pos = [440, 240] },
+  { id = "contours-1", type = "contours", params = { min_area = 200, max_area = 0, draw = "all", thickness = 1 }, pos = [660, 240] },
+  { id = "draw-box-1", type = "draw", params = { shape = "box", color = "green", thickness = 2 }, pos = [880, 240] },
+
+  { id = "view-raw", type = "view", pos = [220, 400] },
+  { id = "view-circles", type = "view", pos = [660, 400] },
+  { id = "view-shapes", type = "view", pos = [880, 400] },
+  { id = "display-circles", type = "display", pos = [1100, 120] },
+  { id = "display-shapes", type = "display", pos = [1100, 200] },
+  { id = "display-truth-circles", type = "display", pos = [1100, 280] },
+  { id = "display-truth-shapes", type = "display", pos = [1100, 360] },
+]
+edges = [
+  { from = ["testcard-1", "image"], to = ["gray-1", "image"] },
+  { from = ["gray-1", "image"], to = ["median-1", "image"] },
+  { from = ["median-1", "image"], to = ["hough-circles-1", "image"] },
+  { from = ["hough-circles-1", "image"], to = ["draw-circle-1", "image"] },
+  { from = ["hough-circles-1", "u"], to = ["draw-circle-1", "u"] },
+  { from = ["hough-circles-1", "v"], to = ["draw-circle-1", "v"] },
+  { from = ["hough-circles-1", "radius"], to = ["draw-circle-1", "width"] },
+
+  { from = ["gray-1", "image"], to = ["threshold-1", "image"] },
+  { from = ["threshold-1", "image"], to = ["contours-1", "image"] },
+  { from = ["contours-1", "image"], to = ["draw-box-1", "image"] },
+  { from = ["contours-1", "u"], to = ["draw-box-1", "u"] },
+  { from = ["contours-1", "v"], to = ["draw-box-1", "v"] },
+  { from = ["contours-1", "width"], to = ["draw-box-1", "width"] },
+  { from = ["contours-1", "height"], to = ["draw-box-1", "height"] },
+
+  { from = ["testcard-1", "image"], to = ["view-raw", "image"] },
+  { from = ["draw-circle-1", "image"], to = ["view-circles", "image"] },
+  { from = ["draw-box-1", "image"], to = ["view-shapes", "image"] },
+  { from = ["hough-circles-1", "count"], to = ["display-circles", "in"] },
+  { from = ["contours-1", "count"], to = ["display-shapes", "in"] },
+  { from = ["testcard-1", "circles"], to = ["display-truth-circles", "in"] },
+  { from = ["testcard-1", "shapes"], to = ["display-truth-shapes", "in"] },
+]
+groups = [
+  { id = "scene", kind = "visual", label = "Test card", nodes = ["testcard-1", "view-raw"] },
+  { id = "circles", kind = "visual", label = "Circles", nodes = ["median-1", "hough-circles-1", "draw-circle-1", "view-circles"] },
+  { id = "shapes", kind = "visual", label = "Shapes", nodes = ["threshold-1", "contours-1", "draw-box-1", "view-shapes"] },
+]
+
+[dashboard]
+columns = 8
+instruments = [
+  { block = "view-circles", size = "large", at = [0, 0] },
+  { block = "view-shapes", size = "large", at = [2, 0] },
+  { block = "view-raw", size = "normal", at = [4, 0] },
+  { block = "display-circles", size = "compact", at = [6, 0] },
+  { block = "display-shapes", size = "compact", at = [7, 0] },
+  { block = "display-truth-circles", size = "compact", at = [6, 1] },
+  { block = "display-truth-shapes", size = "compact", at = [7, 1] },
+]
+decorations = [
+  { kind = "label", text = "Shape inspector · Hough circles and contours", at = [0, 2], span = [6, 1] },
+  { kind = "console", at = [6, 2], span = [2, 2] },
+]
