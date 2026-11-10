@@ -39,6 +39,14 @@ jobs:
         if: steps.token.outputs.skip != 'true'
         run: cmake --build paperboat/engine/build
 
+      - name: Check the examples are discovered
+        if: steps.token.outputs.skip != 'true'
+        run: |
+          cp -r examples paperboat/engine/toolkit/opencv/
+          cd paperboat
+          ./bin/paperboat backends | grep ocv-01-parts-counter
+          ./bin/paperboat check --fast engine/toolkit/opencv/examples/ocv-01-parts-counter
+
   validate:
     name: Validate toolkit files
     runs-on: ubuntu-24.04
