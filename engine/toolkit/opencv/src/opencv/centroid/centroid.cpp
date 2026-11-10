@@ -1,12 +1,11 @@
-// opencv/centroid: the centroid and apparent size of the largest white blob.
-//
-// A general stage at the end of a threshold/morphology pipeline: it finds the largest
-// contour in a mask, returns its image-space centroid `u`,`v`, its area and equivalent
-// radius, and a marked copy of the input for an Image view.
+// Centroid: the centroid and apparent size of the largest white blob.
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <opencv2/imgproc.hpp>

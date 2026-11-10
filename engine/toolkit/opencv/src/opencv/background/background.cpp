@@ -1,7 +1,9 @@
-// A running background: the pixels that changed since the learned background.
+// Background: the pixels that changed since the learned background.
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>

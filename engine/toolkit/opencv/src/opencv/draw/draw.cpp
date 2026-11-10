@@ -1,7 +1,9 @@
-// Annotation: draw a box, circle, cross or text on an image.
+// Draw: annotates an image with a box, circle, cross or text.
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
