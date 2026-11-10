@@ -1,13 +1,17 @@
-// Output: write an image to a file (once, or every step).
+// Save: writes an image to a file (once, or every step).
 
 #include <algorithm>
-#include <filesystem>
+#include <cmath>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 
+#include <filesystem>
+#include <opencv2/imgcodecs.hpp>
 #include "common.hpp"
 
 namespace paperboat::toolkit::opencv {
@@ -50,7 +54,7 @@ class Save final : public Block {
 
 }  // namespace
 
-void add_io(Registry& registry) {
+void add_save(Registry& registry) {
   Template t;
   t.name = "opencv/save";
   t.def = {.type = "save", .label = "Save image", .kind = Kind::Function,

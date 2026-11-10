@@ -1,4 +1,4 @@
-// Images: loading, converting, and the Image station object.
+// Images: loading and converting, and the helpers every block shares (data_url, as_gray, image_entity).
 
 #include <algorithm>
 #include <stdexcept>
@@ -35,26 +35,6 @@ std::string base64(const std::vector<uchar>& bytes) {
   return out;
 }
 
-// A picture on the Station: the file named by its `file` property, `width` units across.
-class ImageObject final : public StationObject {
- public:
-  explicit ImageObject(const Values& props)
-      : file_(get_text(props, "file")), width_(get_or(props, "width", 6)), image_(load(file_)) {}
-
-  Values read() const override { return {{"image", image_out(image_)}}; }
-  void step(const Context&, const Values&) override {}
-  std::vector<Entity> entities(const std::string& id, double z) const override {
-    auto e = image_entity(id, image_, 0, 0, width_);
-    e.pos[2] = z;
-    return {e};
-  }
-
- private:
-  std::string file_;
-  double width_;
-  cv::Mat image_;
-};
-
 }  // namespace
 
 std::string data_url(const cv::Mat& image) {
@@ -79,26 +59,6 @@ cv::Mat as_gray(const cv::Mat& image) {
 Entity image_entity(std::string id, const cv::Mat& image, double x, double y, double width) {
   const double height = width * image.rows / std::max(image.cols, 1);
   return {.id = std::move(id), .shape = "image", .pos = {x, y, 0}, .size = {width, height, 0}, .src = data_url(image)};
-}
-
-void add_image_object(Registry& registry) {
-  registry.add(StationTemplate{
-      .name = "opencv/image",
-      .def = {.type = "image",
-              .label = "Image",
-              .role = "body",
-               .props = {{.id = "file", .default_value = 0, .type = "file", .default_text = ""}, {"width", 6.0}},
-               .links = {},
-               .block = BlockDef{.type = "image",
-                                 .label = "Image",
-                                 .kind = Kind::Probe,
-                                 .inputs = {},
-                                 .outputs = {image_port("image")},
-                                 .params = {},
-                                 .description = "A picture from a file, for a flow to work on."},
-               .description = "A picture from a file, for a flow to work on."},
-      .make = [](const Values& props) { return std::make_unique<ImageObject>(props); },
-  });
 }
 
 }  // namespace paperboat::toolkit::opencv

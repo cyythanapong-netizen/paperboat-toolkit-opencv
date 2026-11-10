@@ -1,7 +1,10 @@
-// Image algebra: bitwise operations, a weighted blend, and the absolute difference.
+#pragma once
+
+// Shared by bitwise, blend and absdiff: two images in, one out, by an operation.
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -12,7 +15,6 @@
 #include "common.hpp"
 
 namespace paperboat::toolkit::opencv {
-namespace {
 
 enum class Op { And, Or, Xor, Not, Add, Blend, AbsDiff };
 
@@ -63,7 +65,7 @@ class Binary final : public Block {
   double alpha_;
 };
 
-void add_binary(Registry& registry, std::string type, std::string label, Op op, bool from_param,
+inline void add_binary(Registry& registry, std::string type, std::string label, Op op, bool from_param,
                 std::vector<ParamDef> params, std::string description) {
   Template t;
   t.name = "opencv/" + type;
@@ -75,24 +77,6 @@ void add_binary(Registry& registry, std::string type, std::string label, Op op, 
     return std::make_unique<Binary>(chosen, p(q, "alpha"));
   };
   registry.add(std::move(t));
-}
-
-}  // namespace
-
-void add_combine(Registry& registry) {
-  add_binary(registry, "bitwise", "Bitwise",
-             Op::And, true,
-             {{.id = "op",
-               .type = "enum",
-               .default_text = "and",
-               .options = {"and", "or", "xor", "not", "add"}}},
-             "Combines two images pixel by pixel (and with a grey second image: a mask).");
-
-  add_binary(registry, "blend", "Blend", Op::Blend, false, {{"alpha", 0.5}},
-             "Mixes two images: alpha of the first, the rest of the second.");
-
-  add_binary(registry, "absdiff", "Difference", Op::AbsDiff, false, {},
-             "How much two images differ: motion against a background, a before and after.");
 }
 
 }  // namespace paperboat::toolkit::opencv

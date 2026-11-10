@@ -1,7 +1,9 @@
-// Gradients: Sobel and Laplacian edges as an 8-bit image.
+// Sobel: gradient edges as an 8-bit image.
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -24,22 +26,11 @@ cv::Mat sobel(const cv::Mat& image, const Values& q) {
   return out;
 }
 
-cv::Mat laplacian(const cv::Mat& image, const Values& q) {
-  cv::Mat gradient;
-  cv::Laplacian(as_gray(image), gradient, CV_16S, odd(p(q, "size")));
-  cv::Mat out;
-  cv::convertScaleAbs(gradient, out);
-  return out;
-}
-
 }  // namespace
 
-void add_gradient(Registry& registry) {
+void add_sobel(Registry& registry) {
   add_filter(registry, "sobel", "Sobel", {{"dx", 1.0}, {"dy", 0.0}, {"size", 3.0}}, sobel,
              "A directional derivative: bright where the image changes along x or y.");
-
-  add_filter(registry, "laplacian", "Laplacian", {{"size", 3.0}}, laplacian,
-             "The second derivative: edges in every direction.");
 }
 
 }  // namespace paperboat::toolkit::opencv
