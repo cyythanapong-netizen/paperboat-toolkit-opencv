@@ -62,6 +62,7 @@ std::string data_url(const cv::Mat& image) {
   if (image.depth() != CV_8U) cv::normalize(image, show, 0, 255, cv::NORM_MINMAX, CV_8U);
   else show = image;
   if (show.channels() == 1) cv::cvtColor(show, show, cv::COLOR_GRAY2BGR);
+  else if (show.channels() == 4) cv::cvtColor(show, show, cv::COLOR_BGRA2BGR);
   std::vector<uchar> jpeg;
   cv::imencode(".jpg", show, jpeg, {cv::IMWRITE_JPEG_QUALITY, 85});
   return "data:image/jpeg;base64," + base64(jpeg);
@@ -70,7 +71,8 @@ std::string data_url(const cv::Mat& image) {
 cv::Mat as_gray(const cv::Mat& image) {
   if (image.channels() == 1) return image;
   cv::Mat gray;
-  cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+  if (image.channels() == 4) cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
+  else cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
   return gray;
 }
 
