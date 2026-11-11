@@ -1,5 +1,6 @@
 // The opencv toolkit's web part: the Dashboard `image` instrument (opencv/view).
 // The Paperboat web app bundles every engine/toolkit/<name>/web/index.tsx and calls register(host).
+import "./image.css";
 
 type ImageProps = { name: string; latest: unknown; idle: boolean };
 type Host = {

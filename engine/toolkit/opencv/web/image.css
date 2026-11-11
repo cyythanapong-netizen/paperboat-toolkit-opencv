@@ -1,0 +1,17 @@
+/* The image viewer: the frame fills its cell and the picture fits it without cropping. */
+.instrument.image .screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.instrument.image .screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.instrument.image .screen output {
+  font: var(--size-2xs) var(--font-mono);
+  color: var(--text-muted);
+}
