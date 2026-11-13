@@ -74,6 +74,7 @@ and import `"opencv"` in your `descriptor.toml`. A backend that lists the toolki
 
 ## CI
 
-The build job checks out the (private) paperboat engine. Add a repository secret
-`PAPERBOAT_TOKEN` (a PAT with repo scope) for it to run; otherwise only the `validate` job runs.
+The `build` job checks out the public paperboat engine (`dev`), builds this toolkit inside it and checks
+`ocv-01`. The `plugin` job installs paperboat as a release would be and runs
+`paperboat toolkit install opencv --path .` against it: the toolkit as a plugin, then `ocv-01` against the SDK.
 The engine's `engine/tests/opencv_test.cpp` covers the stages with synthetic Mats.
