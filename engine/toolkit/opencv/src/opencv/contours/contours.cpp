@@ -51,7 +51,7 @@ class Contours final : public Block {
 
     cv::Mat marked = as_bgr(gray).clone();
     if (draw_ == 0) {
-      for (const auto* contour : kept) cv::drawContours(marked, std::vector{*contour}, -1, cv::Scalar(120, 255, 120),
+      for (const auto* contour : kept) cv::drawContours(marked, std::vector<std::vector<cv::Point>>{*contour}, -1, cv::Scalar(120, 255, 120),
                                                         thickness_, cv::LINE_AA);
     }
 
