@@ -10,37 +10,23 @@ jobs:
     name: Build opencv toolkit against paperboat
     runs-on: ubuntu-24.04
     steps:
-      - name: Check for token
-        id: token
-        run: |
-          if [ -z "${{ secrets.PAPERBOAT_TOKEN }}" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "PAPERBOAT_TOKEN not set; skipping build (see README)."
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
+      # The engine is public: no token, so this always builds (a skipped build showed green).
       - uses: actions/checkout@v4
-        if: steps.token.outputs.skip != 'true'
+      - uses: actions/checkout@v4
         with:
-          repository: cyythanapong-netizen/paperboat
+          repository: paperboatlab/paperboat
           ref: dev
-          token: ${{ secrets.PAPERBOAT_TOKEN }}
           path: paperboat
       - name: Overlay the toolkit
-        if: steps.token.outputs.skip != 'true'
         run: cp -r engine/toolkit/opencv paperboat/engine/toolkit/opencv
       - name: Install OpenCV
-        if: steps.token.outputs.skip != 'true'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev ninja-build
       - name: Configure
-        if: steps.token.outputs.skip != 'true'
         run: cmake -S paperboat/engine -B paperboat/engine/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
       - name: Build
-        if: steps.token.outputs.skip != 'true'
         run: cmake --build paperboat/engine/build
 
       - name: Check the examples are discovered
-        if: steps.token.outputs.skip != 'true'
         run: |
           cp -r examples paperboat/engine/toolkit/opencv/
           cd paperboat
@@ -56,3 +42,32 @@ jobs:
         run: python3 -c "import tomllib; tomllib.load(open('engine/toolkit/opencv/toolkit.toml','rb')); print('toolkit.toml OK')"
       - name: Check OpenCV headers present
         run: test -f engine/toolkit/opencv/include/paperboat/toolkit/opencv.hpp && echo OK
+
+  # The path a user takes (paperboatlab/paperboat#354): paperboat installed as a release (shared engine and
+  # SDK), then `paperboat toolkit install` builds this toolkit as a plugin against it. No engine checkout.
+  plugin:
+    name: Install as a plugin on an installed paperboat
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: paperboatlab/paperboat
+          ref: dev
+          path: paperboat
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ninja-build cmake g++ git libopencv-dev
+      - name: paperboat, installed as a release would be
+        run: |
+          cmake -S paperboat/engine -B "$RUNNER_TEMP/pb-build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DPAPERBOAT_BUILD_TESTS=OFF
+          cmake --build "$RUNNER_TEMP/pb-build"
+          cmake --install "$RUNNER_TEMP/pb-build" --prefix "$RUNNER_TEMP/pb"
+      - name: paperboat toolkit install opencv, from this checkout
+        env:
+          PAPERBOAT_HOME: ${{ runner.temp }}/home
+        run: |
+          cd "$RUNNER_TEMP"   # outside any checkout: the installed paperboat, as a user has it
+          "$RUNNER_TEMP/pb/bin/paperboat" toolkit install opencv --path "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/pb/bin/paperboat" toolkit list opencv | grep -q "opencv/"
+          python3 -m pip install -q --user --break-system-packages websockets jsonschema
+          "$RUNNER_TEMP/pb/bin/paperboat" check ocv-01   # its example, built against the SDK and this plugin
